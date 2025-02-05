@@ -6,7 +6,10 @@ export const CustomButtonBox = ({ title, onPress, backgroundColor }) => {
         <TouchableOpacity
         style={[styles.container, { backgroundColor }]}
         onPress={onPress}>
-        <Text style={styles.text}>{title}</Text>
+        <View style={{flex: 1, justifyContent: 'center' ,alignItems: 'center'}}>
+            <Text style={styles.text}>{title}</Text>
+        </View>
+        
     </TouchableOpacity>
     )
 }

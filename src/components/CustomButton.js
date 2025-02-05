@@ -26,8 +26,8 @@ export const CustomButtonLong = ({ title, onPress, backgroundColor }) => {
 
 const styles = StyleSheet.create({
     ButtonBox: {
-        borderWidth: 2,
-        borderColor: '#ccc',
+        borderWidth: 1,
+        borderColor: '#294cdc',
         width: 80,
         height: 80,
         borderRadius: 5,
@@ -51,5 +51,6 @@ const styles = StyleSheet.create({
         height: 50,
         marginTop: 2,
         width: 300,
+        borderWidth: 1,
     },
 })

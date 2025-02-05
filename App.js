@@ -19,7 +19,7 @@ const App = () => {
                 <Stack.Screen
                     name="AddGoods"
                     component={AddGoodsScreen}
-                    options={{ title: 'Add Goods' }}
+                    options={{ title: '🛍️ | Goods' }}
                 />
             </Stack.Navigator>
         </NavigationContainer>

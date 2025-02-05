@@ -4,7 +4,7 @@ import { View, Text, StyleSheet } from "react-native";
 const TotalSummary = ({total}) => {
     return (
         <View style={styles.container}>
-            <Text style={styles.head}>Total Summary : </Text>
+            <Text style={styles.head}>Total Summary (unpurchased): </Text>
             <Text style={styles.total}>{total} ฿</Text>
         </View>
     )
@@ -12,15 +12,16 @@ const TotalSummary = ({total}) => {
 
 const styles = StyleSheet.create({
     container: {
-        borderWidth: 2,
+        borderWidth: 1,
         height : 80,
-        width: 330,
-        borderColor: '#ccc',
+        width: 240,
+        borderColor: '#294cdc',
         borderRadius: 5,
         padding: 8,
+        backgroundColor: 'white'
     },
     head: {
-        fontSize: 18,
+        fontSize: 16,
         color: '#616161'
     },
     total: {

@@ -1,40 +1,59 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TextInput, FlatList, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert  } from "react-native";
 import { CustomButtonBox } from "../components/CustomButton";
 import TotalSummary from "../components/TotalSummary";
 import ItemCard from "../components/ItemCard";
+import TextInputs from "../components/TextInput";
 
 
 const HomeScreen = ({ navigation }) => {
     const [goods, setGoods] = useState([
-        { id: '1', title: 'Shoes', cost: 200, category: 'Fashion', status: '1' },
-        { id: '2', title: 'Shoe1', cost: 200, category: 'Fashion', status: '1' },
-        { id: '3', title: 'Shoes2', cost: 200, category: 'Fashion', status: '1' },
-        { id: '4', title: 'Shoes3', cost: 200, category: 'Fashion', status: '1' },
-        { id: '5', title: 'Shoes3', cost: 200, category: 'Fashion', status: '1' },
-        { id: '6', title: 'Shoes3', cost: 200, category: 'Fashion', status: '1' },
-        { id: '7', title: 'Shoes3', cost: 200, category: 'Fashion', status: '1' },
-        { id: '8', title: 'Shoes3', cost: 200, category: 'Fashion', status: '1' },
-        { id: '9', title: 'Shoes3', cost: 200, category: 'Fashion', status: '1' },
-        { id: '10', title: 'Shoes3', cost: 200, category: 'Fashion', status: '1' },
-        { id: '11', title: 'Shoes3', cost: 200, category: 'Fashion', status: '1' },
-        { id: '12', title: 'Shoes3', cost: 200, category: 'Fashion', status: '1' },
+        { id: '1', title: 'NINIBARA', cost: 200, category: 'Fashion', status: 'Bought' },
+        { id: '2', title: 'NINIBARA', cost: 200, category: 'Fashion', status: 'Bought' },
+        { id: '3', title: 'NINIBARA', cost: 200, category: 'Fashion', status: 'Not yet' },
+        { id: '4', title: 'NINIBARA', cost: 200, category: 'Fashion', status: 'Not yet' },
+        { id: '5', title: 'NINIBARA', cost: 200, category: 'Fashion', status: 'Not yet' },
+        { id: '6', title: 'NINIBARA', cost: 200, category: 'Fashion', status: 'Bought' },
+        { id: '7', title: 'NINIBARA', cost: 200, category: 'Fashion', status: 'Not yet' },
+        { id: '8', title: 'NINIBARA', cost: 200, category: 'Fashion', status: 'Not yet' },
+        { id: '9', title: 'NINIBARA', cost: 200, category: 'Fashion', status: 'Not yet' },
+        { id: '10', title: 'NINIBARA', cost: 200, category: 'Fashion', status: 'Bought' },
+        { id: '11', title: 'NINIBARA', cost: 200, category: 'Fashion', status: 'Not yet' },
+        { id: '12', title: 'NINIBARA', cost: 200, category: 'Fashion', status: 'Bought' },
 
     ])
 
 
-
     return (
         <View style={styles.ViewStyle}>
-            <TextInput placeholder="Search a name of goods ..." style={styles.input} />
-
+            <View style={styles.container}>
+                <View>
+                    <CustomButtonBox
+                        title='⚙️'
+                        backgroundColor='#eddfb0'
+                        
+                    />
+                </View>
+                <View>
+                    <TotalSummary />
+                </View>
+                <View>
+                    <CustomButtonBox
+                        title='+'
+                        backgroundColor='#e79517'
+                        onPress={() => navigation.navigate("AddGoods", { mode: '' })
+                        }
+                    />
+                </View>
+            </View>
+            <TextInputs text="Search a name of goods ..." width={420} />
             <View style={styles.AllGoods}>
                 <FlatList
                     data={goods}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => {
                         return (
-                            <TouchableOpacity onPress={() => navigation.navigate("AddGoods", { mode: false })}>
+                            <TouchableOpacity >
                                 <ItemCard
                                     name={item.title}
                                     cost={item.cost}
@@ -46,20 +65,6 @@ const HomeScreen = ({ navigation }) => {
                     }}
                 />
             </View>
-            <View style={styles.container}>
-                <View>
-                    <TotalSummary />
-                </View>
-                <View>
-                    <CustomButtonBox
-                        title='+'
-                        backgroundColor='#72d572'
-                        onPress={() => navigation.navigate("AddGoods", { mode: true })
-                        }
-                    />
-                </View>
-
-            </View>
         </View>
     )
 }
@@ -68,31 +73,22 @@ const styles = StyleSheet.create({
     ViewStyle: {
         flex: 1,
         alignItems: 'center',
-    },
-    input: {
-        marginTop: 15,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 5,
-        padding: 10,
-        fontSize: 18,
-        marginBottom: 10,
-        width: 420,
-        alignItems: 'center',
+        backgroundColor: '#acd2f4'
     },
     AllGoods: {
-        borderWidth: 2,
-        borderColor: '#ccc',
+        borderWidth: 1,
+        borderColor: '#294cdc',
         width: 420,
         height: 660,
         borderRadius: 5,
         marginBottom: 10,
+        backgroundColor: 'white'
     },
     container: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         width: 420,
-        marginBottom: 10,
+        marginTop: 10
     }
 })
 

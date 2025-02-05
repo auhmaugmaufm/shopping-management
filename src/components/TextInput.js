@@ -1,10 +1,10 @@
 import React from "react";
 import { View, TextInput, StyleSheet } from "react-native";
 
-function TextInputs({ width, text }) {
+const TextInputs = ({ width, text, value, onChangeText }) => {
     return (
         <View>
-            <TextInput style={[styles.input, { width }]} placeholder={text}/>
+            <TextInput style={[styles.input, { width }]} placeholder={text} value={value} onChangeText={onChangeText}/>
         </View>
     );
 }

@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
     TextBox: {
         textAlign: 'center',
         color: 'white',
-        fontSize: 40,
+        fontSize: 20,
     },
     TextLong: {
         textAlign: 'center',

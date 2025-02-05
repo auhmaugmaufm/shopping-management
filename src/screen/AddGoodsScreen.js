@@ -4,7 +4,7 @@ import TextInputs from "../components/TextInput";
 
 import { CustomButtonLong } from "../components/CustomButton";
 
-const AddGoods = ({ title, cost, status, category, mode, navigation }) => {
+const AddGoods = ({ title, cost, status, mode, navigation }) => {
     const [title1, setTitle] = useState(title || "")
     const [cost2, setCost] = useState(cost || "")
     const [status3, setStatus] = useState(status || "")

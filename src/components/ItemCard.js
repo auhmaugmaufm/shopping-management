@@ -1,13 +1,10 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity , Image} from "react-native";
+import { View, Text, StyleSheet , Image} from "react-native";
 
-const ItemCard = ({ name, cost, status, category, navigation }) => {
-    const [title1, setTitle] = useState(name || "")
-    const [cost2, setCost] = useState(cost || "")
-    const [status3, setStatus] = useState(status || "")
+const ItemCard = ({ name, cost, status }) => {
 
     const r = () => {
-        if (status3 === 'Bought') {
+        if (status === 'Bought') {
             return '#ccc' 
         } else {
             return 'black'
@@ -26,14 +23,14 @@ const ItemCard = ({ name, cost, status, category, navigation }) => {
                     />
                 </View>
                 <View style={{padding: 10}}>
-                    <Text style={[styles.name, {color}]}>{title1}</Text>
+                    <Text style={[styles.name, {color}]}>{name}</Text>
                     <Text style={{color}}>{status}</Text>
                 </View>
 
             </View>
 
             <View>
-                <Text style={[styles.cost, {color}]}>{cost2} ฿</Text>
+                <Text style={[styles.cost, {color}]}>{cost} ฿</Text>
             </View>
         </View>
     )

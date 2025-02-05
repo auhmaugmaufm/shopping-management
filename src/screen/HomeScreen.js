@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TextInput, FlatList } from "react-native";
+import { View, Text, StyleSheet, TextInput, FlatList, TouchableOpacity } from "react-native";
 import { CustomButtonBox } from "../components/CustomButton";
 import TotalSummary from "../components/TotalSummary";
 import ItemCard from "../components/ItemCard";
@@ -22,7 +22,7 @@ const HomeScreen = ({ navigation }) => {
 
     ])
 
-    
+
 
     return (
         <View style={styles.ViewStyle}>
@@ -33,7 +33,16 @@ const HomeScreen = ({ navigation }) => {
                     data={goods}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => {
-                        return <ItemCard name={item.title} cost={item.cost} status={item.status} />
+                        return (
+                            <TouchableOpacity onPress={() => navigation.navigate("AddGoods", { mode: false })}>
+                                <ItemCard
+                                    name={item.title}
+                                    cost={item.cost}
+                                    status={item.status}
+                                    navigation={navigation}
+                                />
+                            </TouchableOpacity>
+                        )
                     }}
                 />
             </View>
@@ -45,7 +54,8 @@ const HomeScreen = ({ navigation }) => {
                     <CustomButtonBox
                         title='+'
                         backgroundColor='#72d572'
-                        onPress={() => navigation.navigate("AddGoods")}
+                        onPress={() => navigation.navigate("AddGoods", { mode: true })
+                        }
                     />
                 </View>
 

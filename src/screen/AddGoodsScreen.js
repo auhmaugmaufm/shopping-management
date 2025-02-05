@@ -1,19 +1,24 @@
-import React, { useState } from "react";
-import { View, Text, Modal, StyleSheet, TextInput } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, TextInput } from "react-native";
+
 import { CustomButtonLong } from "../components/CustomButton";
 
+const AddGoods = ({ title, cost, status, category, mode, navigation }) => {
+    const [title1, setTitle] = useState(title || "")
+    const [cost2, setCost] = useState(cost || "")
+    const [status3, setStatus] = useState(status || "")
+    useEffect(()=>{
+        
+    },[mode])
 
-const AddGoods = ({ navigation }) => {
-    //const [isVisible, setIsVisible] = useState(false);
     return (
         <View style={styles.container}>
-            <Text>Add Goods ...</Text>
-            <TextInput placeholder="Title ..." style={styles.input} />
-            <TextInput placeholder="Cost ..." style={styles.input} />
-            <TextInput placeholder="Category ..." style={styles.input} />
+            <TextInput placeholder="Title ..." style={styles.input} value={title1} onChangeText={setTitle} />
+            <TextInput placeholder="Cost ..." style={styles.input} value={cost2} onChangeText={setCost} />
+            <TextInput placeholder="Status ..." style={styles.input} value={status3} onChangeText={setStatus} />
             <CustomButtonLong
-                title='Add Goooooods'
-                backgroundColor='green'
+                title={mode ? 'Add Goods' : 'Save Change'}
+                backgroundColor={mode ? 'green' : 'blue'}
                 onPress={() => navigation.navigate("Home")}
             />
         </View>
@@ -24,10 +29,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: 'center',
-        //justifyContent: 'center'
     },
     input: {
-        marginTop: 15,
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 5,
@@ -38,6 +41,5 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
 })
-
 
 export default AddGoods;

@@ -4,10 +4,10 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 export const CustomButtonBox = ({ title, onPress, backgroundColor }) => {
     return (
         <TouchableOpacity
-        style={[styles.container, { backgroundColor }]}
+        style={[styles.ButtonBox, { backgroundColor }]}
         onPress={onPress}>
         <View style={{flex: 1, justifyContent: 'center' ,alignItems: 'center'}}>
-            <Text style={styles.text}>{title}</Text>
+            <Text style={styles.TextBox}>{title}</Text>
         </View>
         
     </TouchableOpacity>
@@ -17,29 +17,34 @@ export const CustomButtonBox = ({ title, onPress, backgroundColor }) => {
 export const CustomButtonLong = ({ title, onPress, backgroundColor }) => {
     return (
         <TouchableOpacity
-            style={[styles.button, { backgroundColor }]}
+            style={[styles.ButtonLong, { backgroundColor }]}
             onPress={onPress}>
-            <Text style={styles.text}>{title}</Text>
+            <Text style={styles.TextLong}>{title}</Text>
         </TouchableOpacity>
     )
 }
 
 const styles = StyleSheet.create({
-    container: {
+    ButtonBox: {
         borderWidth: 2,
         borderColor: '#ccc',
         width: 80,
         height: 80,
         borderRadius: 5,
     },
-    text: {
+    TextBox: {
         textAlign: 'center',
         color: 'white',
         fontSize: 40,
     },
-    button: {
+    TextLong: {
+        textAlign: 'center',
+        color: 'white',
+        fontSize: 20,
+    },
+    ButtonLong: {
         backgroundColor: 'blue',
-        paadding: 10,
+        padding: 10,
         alignItems: 'center',
         justifyContent: 'center' ,
         borderRadius: 5,

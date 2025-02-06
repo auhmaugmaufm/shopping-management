@@ -24,18 +24,27 @@ export const CustomButtonLong = ({ title, onPress, backgroundColor }) => {
     )
 }
 
+export const CustomButtonSmall = ({ title, onPress, backgroundColor }) => {
+    return (
+        <TouchableOpacity
+            style={[styles.ButtonSmall, { backgroundColor }]}
+            onPress={onPress}>
+        </TouchableOpacity>
+    )
+}
 const styles = StyleSheet.create({
     ButtonBox: {
         borderWidth: 1,
         borderColor: '#294cdc',
         width: 80,
-        height: 80,
+        height: 60,
         borderRadius: 5,
     },
     TextBox: {
         textAlign: 'center',
         color: 'white',
         fontSize: 20,
+        fontWeight: 'bold'
     },
     TextLong: {
         textAlign: 'center',
@@ -53,4 +62,11 @@ const styles = StyleSheet.create({
         width: 300,
         borderWidth: 1,
     },
+    ButtonSmall: {
+        borderWidth: 1,
+        borderColor: '#294cdc',
+        width: 30,
+        height: 30,
+        borderRadius: 5,
+    }
 })

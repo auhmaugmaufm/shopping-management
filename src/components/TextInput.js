@@ -11,15 +11,16 @@ const TextInputs = ({ width, text, value, onChangeText }) => {
 
 const styles = StyleSheet.create({
     input: {
-        marginTop: 10,
         borderWidth: 1,
         borderColor: '#294cdc',
         borderRadius: 5,
         padding: 10,
         fontSize: 18,
+        marginTop: 10,
         marginBottom: 10,
         alignItems: 'center',
-        backgroundColor: 'white'
+        backgroundColor: 'white',
+        maxHeight: 50
     }
 });
 

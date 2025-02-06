@@ -13,7 +13,7 @@ const TotalSummary = ({total}) => {
 const styles = StyleSheet.create({
     container: {
         borderWidth: 1,
-        height : 80,
+        height : 60,
         width: 240,
         borderColor: '#294cdc',
         borderRadius: 5,
@@ -21,12 +21,13 @@ const styles = StyleSheet.create({
         backgroundColor: 'white'
     },
     head: {
-        fontSize: 16,
+        fontSize: 12,
         color: '#616161'
     },
     total: {
-        fontSize: 30,
+        fontSize: 25,
         fontWeight: 'bold',
+        textAlign: 'right'
     }
 })
 

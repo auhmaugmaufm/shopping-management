@@ -50,7 +50,7 @@ const HomeScreen = () => {
 
     const addGoods = async () => {
         if (!title.trim() || isNaN(cost) || cost === "" || parseFloat(cost) < 0) {
-            alert("กรุณากรอกค่า Title และ price ห้ามน้อยกว่า 0");
+            alert("กรุณากรอกค่า Title และ Cost ห้ามน้อยกว่า 0");
             return;
         }
         const defaultImg = 'https://i.pinimg.com/736x/18/36/67/183667deaaecb9c275b2c3ae80a58c68.jpg'
@@ -68,43 +68,40 @@ const HomeScreen = () => {
         } catch (error) {
             console.log('Error: ', error)
         }
-        searchHero(key)
         setIsVisible(false);
-
     };
 
     const editGoods = async () => {
         if (!title.trim() || isNaN(cost) || cost === "" || parseFloat(cost) < 0) {
-            alert("กรุณากรอกค่า Title และ price ห้ามน้อยกว่า 0");
+            alert("กรุณากรอกค่า Title และ Cost ห้ามน้อยกว่า 0");
             return;
         }
 
         const updatedGoods = goods.map((item) => {
-            if (item.id === id) {
+            if (item.id.toString() === id) {
                 return { ...item, title, cost, img, status };
             }
             return item;
         });
 
         setGoods(updatedGoods);
-        setId('')
+        setId("")
         setTitle("");
         setCost("");
         setImg("");
         setStatus("");
-        searchHero(key)
         setIsVisible(false);
 
         try {
             await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedGoods))
         } catch (error) {
             console.log('Error: ', error)
-        }
+        }a
     };
 
     const switchStatus = async () => {
         const updatedGoods = goods.map((item) => {
-            if (item.id === id) {
+            if (item.id.toString() === id) {
                 let tmp = item.status != 'Bought' ? 'Bought' : 'Not yet!'
                 dispatch({ type: tmp, total: parseFloat(item.cost) });
                 return { ...item, status: tmp };
@@ -112,7 +109,7 @@ const HomeScreen = () => {
             return item;
         });
         setGoods(updatedGoods);
-        setId('')
+        setId("")
         setTitle("");
         setCost("");
         setImg("");
@@ -127,7 +124,7 @@ const HomeScreen = () => {
     };
 
     const deleteGoods = async () => {
-        if( status === 'Not yet!' ) {
+        if (status === 'Not yet!') {
             dispatch({ type: 'Bought', total: cost });
         }
         const newGoods = goods.filter((item) => item.id != id)
@@ -140,12 +137,15 @@ const HomeScreen = () => {
         }
     }
 
+
     const loadGoods = async () => {
         try {
             const storedGoods = await AsyncStorage.getItem(STORAGE_KEY)
-            // console.log(storedGoods)
+            //console.log(storedGoods)
             if (storedGoods) {
-                setGoods(JSON.parse(storedGoods))
+                const parsedGoods = JSON.parse(storedGoods);
+                setGoods(parsedGoods);
+                loadTotal(parsedGoods);
             } else {
                 setGoods([])
             }
@@ -154,14 +154,28 @@ const HomeScreen = () => {
         }
     }
 
+    const loadTotal = (goods) => {
+        let totalBeforeStart = 0;
+        goods.forEach((item) => {
+            if (item.status === 'Not yet!') {
+                totalBeforeStart += parseFloat(item.cost);
+            }
+        });
+        dispatch({ type: 'Not yet!', total: totalBeforeStart });
+    };
+
     useEffect(() => {
         loadGoods();
     }, []);
 
     useEffect(() => {
-        
         searchHero(key);
     }, [goods]);
+
+    // useEffect(() => {
+    //     console.log("Goods list:", goods);
+    // }, [goods]);
+
 
     const openModal = (text, item) => {
         setMode(text);
@@ -184,7 +198,7 @@ const HomeScreen = () => {
     const clearAllStorage = async () => {
         try {
             await AsyncStorage.clear();
-            dispatch({type: 'Reset'})
+            dispatch({ type: 'Reset' })
             setGoods([]);
             console.log('Clear Done!');
         } catch (error) {
@@ -193,76 +207,77 @@ const HomeScreen = () => {
     };
 
 
-return (
-    <View style={styles.ViewStyle}>
-        <Modal transparent={true} animationType="fade" visible={isVisible}>
-            <View style={styles.modalOverlay}>
-                <View style={styles.modalContainer}>
-                    <Text style={styles.title}>{mode === "add" ? "Add GOODS" : "Edit GOODS"}</Text>
-                    <TextInputs width={300} style={styles.input} text="Title ..." value={title} onChangeText={setTitle} />
-                    <TextInputs width={300} style={styles.input} text="Cost ..." value={cost} keyboardType="numeric" onChangeText={setCost} />
-                    <TextInputs width={300} style={styles.input} text="Image ..." value={img} onChangeText={setImg} />
-                    <View style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        width: 300,
-                        marginTop: 15
-                    }}>
+    return (
+        <View style={styles.ViewStyle}>
+            <Modal transparent={true} animationType="fade" visible={isVisible}>
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContainer}>
+                        <Text style={styles.title}>{mode === "add" ? "Add GOODS" : "Edit GOODS"}</Text>
+                        <TextInputs width={300} style={styles.input} text="Title ..." value={title} onChangeText={setTitle} />
+                        <TextInputs width={300} style={styles.input} text="Cost ..." value={cost} keyboardType="numeric" onChangeText={setCost} />
+                        <TextInputs width={300} style={styles.input} text="Image ..." value={img} onChangeText={setImg} />
+                        <View style={{
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                            width: 300,
+                            marginTop: 15
+                        }}>
 
-                        {mode === "add" ?
+                            {mode === "add" ?
+                                <CustomButtonBox
+                                    title='Cancel'
+                                    backgroundColor='#ccc'
+                                    onPress={() => setIsVisible(false)}
+                                /> :
+                                [
+                                    <CustomButtonBox
+                                        title='Delete'
+                                        backgroundColor='red'
+                                        onPress={deleteGoods}
+                                    />,
+                                    <CustomButtonBox
+                                        title='Switch'
+                                        backgroundColor='pink'
+                                        onPress={switchStatus}
+                                    />
+                                ]
+
+                            }
+
                             <CustomButtonBox
-                                title='Cancel'
-                                backgroundColor='#ccc'
-                                onPress={() => setIsVisible(false)}
-                            /> :
-                            [
-                                <CustomButtonBox
-                                    title='Delete'
-                                    backgroundColor='red'
-                                    onPress={deleteGoods}
-                                />,
-                                <CustomButtonBox
-                                    title='Switch'
-                                    backgroundColor='pink'
-                                    onPress={switchStatus}
-                                />
-                            ]
+                                title={mode === "add" ? "Add" : "Save"}
+                                backgroundColor={mode === "add" ? "#0D47A1" : "blue"}
+                                onPress={mode === "add" ? addGoods : editGoods}
+                            />
+                        </View>
 
-                        }
-
-                        <CustomButtonBox
-                            title={mode === "add" ? "Add" : "Save"}
-                            backgroundColor={mode === "add" ? "#0D47A1" : "blue"}
-                            onPress={mode === "add" ? addGoods : editGoods}
-                        />
                     </View>
-
                 </View>
+            </Modal>
+            <TextInputs text="Search a name of goods ..." width={420} value={key}
+                onChangeText={searchHero} />
+            <View style={styles.AllGoods}>
+                <FlatList
+                    data={filteredHeroes}
+                    keyExtractor={(item) => item.id.toString()}
+                    renderItem={({ item }) => {
+                        //console.log(item.id)
+                        return (
+                            <TouchableOpacity onPress={() => openModal("edit", item)}>
+                                <ItemCard name={item.title} cost={parseFloat(item.cost)} img={item.img} status={item.status} />
+                            </TouchableOpacity>
+                        )
+                    }}
+                />
             </View>
-        </Modal>
-        <TextInputs text="Search a name of goods ..." width={420} value={key}
-            onChangeText={searchHero} />
-        <View style={styles.AllGoods}>
-            <FlatList
-                data={filteredHeroes}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => {
-                    return (
-                        <TouchableOpacity onPress={() => openModal("edit", item)}>
-                            <ItemCard name={item.title} cost={item.cost} img={item.img} status={item.status} />
-                        </TouchableOpacity>
-                    );
-                }}
-            />
-        </View>
 
-        <View style={styles.container}>
-            <CustomButtonBox title="CLEAR ALL" backgroundColor="#8e6a9a" onPress={clearAllStorage} />
-            <TotalSummary total={totalSum.total} />
-            <CustomButtonBox title="ADD" backgroundColor="#427794" onPress={() => openModal("add")} />
+            <View style={styles.container}>
+                <CustomButtonBox title="CLEAR ALL" backgroundColor="#8e6a9a" onPress={clearAllStorage} />
+                <TotalSummary total={totalSum.total} />
+                <CustomButtonBox title="ADD" backgroundColor="#427794" onPress={() => openModal("add")} />
+            </View>
         </View>
-    </View>
-);
+    );
 };
 
 const styles = StyleSheet.create({

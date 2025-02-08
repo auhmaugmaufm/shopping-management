@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput, Alert } from "react-native";
+import React, { useState, useEffect, useReducer } from "react";
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, Alert } from "react-native";
 import { CustomButtonBox, CustomButtonLong } from "../components/CustomButton";
 import TotalSummary from "../components/TotalSummary";
 import ItemCard from "../components/ItemCard";
@@ -8,13 +8,28 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const STORAGE_KEY = "@goods_data";
 
+const reducer = (state, action) => {
+    switch (action.type) {
+        case "Not yet!":
+            return { total: state.total + action.total }
+        case "Bought":
+            return { total: state.total - action.total }
+        case 'Reset':
+            return { total: 0 }
+        default:
+            return state;
+    }
+}
+
+
 const HomeScreen = () => {
     const [id, setId] = useState('')
     const [title, setTitle] = useState("");
     const [cost, setCost] = useState("");
     const [img, setImg] = useState("");
     const [status, setStatus] = useState('')
-    let total = 0
+    const [totalSum, dispatch] = useReducer(reducer, { total: 0 })
+
 
     const [goods, setGoods] = useState([]);
     const [mode, setMode] = useState("");
@@ -22,13 +37,16 @@ const HomeScreen = () => {
 
     const [key, setKey] = useState('');
     const [filteredHeroes, setFilteredHeroes] = useState(goods);
+
     const searchHero = (text) => {
-        setKey(text)
-        const g = goods.filter((good) =>
+        setKey(text);
+        const filtered = goods.filter((good) =>
             good.title.toLowerCase().includes(text.toLowerCase())
-        )
-        setFilteredHeroes(g);
-    }
+        );
+        setFilteredHeroes(filtered);
+    };
+
+
 
     const addGoods = async () => {
         if (!title.trim() || isNaN(cost) || cost === "" || parseFloat(cost) < 0) {
@@ -38,11 +56,13 @@ const HomeScreen = () => {
         const defaultImg = 'https://i.pinimg.com/736x/18/36/67/183667deaaecb9c275b2c3ae80a58c68.jpg'
         const newGoods = { id: Date.now().toString(), title, cost, status, img: img.trim() ? img : defaultImg }
         const updatedGoods = [newGoods, ...goods];
+        dispatch({ type: 'Not yet!', total: parseFloat(newGoods.cost) });
         setGoods(updatedGoods);
         setTitle("");
         setCost("");
         setImg("");
         setStatus("")
+        setId("")
         try {
             await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedGoods))
         } catch (error) {
@@ -72,6 +92,31 @@ const HomeScreen = () => {
         setCost("");
         setImg("");
         setStatus("");
+        searchHero(key)
+        setIsVisible(false);
+
+        try {
+            await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedGoods))
+        } catch (error) {
+            console.log('Error: ', error)
+        }
+    };
+
+    const switchStatus = async () => {
+        const updatedGoods = goods.map((item) => {
+            if (item.id === id) {
+                let tmp = item.status != 'Bought' ? 'Bought' : 'Not yet!'
+                dispatch({ type: tmp, total: parseFloat(item.cost) });
+                return { ...item, status: tmp };
+            }
+            return item;
+        });
+        setGoods(updatedGoods);
+        setId('')
+        setTitle("");
+        setCost("");
+        setImg("");
+        setStatus("");
         setIsVisible(false);
 
         try {
@@ -82,6 +127,9 @@ const HomeScreen = () => {
     };
 
     const deleteGoods = async () => {
+        if( status === 'Not yet!' ) {
+            dispatch({ type: 'Bought', total: cost });
+        }
         const newGoods = goods.filter((item) => item.id != id)
         setGoods(newGoods)
         setIsVisible(false);
@@ -91,25 +139,6 @@ const HomeScreen = () => {
             console.log('Error: ', error)
         }
     }
-
-
-    const changeStatus = async () => {
-
-        const updatedGoods = goods.map((item) => {
-            if (item.id === selectedItem.id) {
-                return { ...item, title, cost, img, status: 'Bought' };
-            }
-            return item
-        });
-        setGoods(updatedGoods)
-        setIsVisible(false);
-        try {
-            await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedGoods))
-        } catch (error) {
-            console.log('Error: ', error)
-        }
-    }
-
 
     const loadGoods = async () => {
         try {
@@ -125,10 +154,14 @@ const HomeScreen = () => {
         }
     }
 
+    useEffect(() => {
+        loadGoods();
+    }, []);
 
     useEffect(() => {
-        loadGoods()
-    }, [goods])
+        
+        searchHero(key);
+    }, [goods]);
 
     const openModal = (text, item) => {
         setMode(text);
@@ -151,6 +184,7 @@ const HomeScreen = () => {
     const clearAllStorage = async () => {
         try {
             await AsyncStorage.clear();
+            dispatch({type: 'Reset'})
             setGoods([]);
             console.log('Clear Done!');
         } catch (error) {
@@ -158,91 +192,94 @@ const HomeScreen = () => {
         }
     };
 
-    return (
-        <View style={styles.ViewStyle}>
-            <Modal transparent={true} animationType="fade" visible={isVisible}>
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContainer}>
-                        <Text style={styles.title}>{mode === "add" ? "Add GOODS" : "Edit GOODS"}</Text>
-                        <TextInputs width={300} style={styles.input} text="Title ..." value={title} onChangeText={setTitle} />
-                        <TextInputs width={300} style={styles.input} text="Cost ..." value={cost} keyboardType="numeric" onChangeText={setCost} />
-                        <TextInputs width={300} style={styles.input} text="Image ..." value={img} onChangeText={setImg} />
-                        <View style={{
-                            flexDirection: "row",
-                            justifyContent: "space-between",
-                            width: 300,
-                        }}>
 
-                            {mode === "add" ?
-                                <CustomButtonBox
-                                    title='Cancel'
-                                    backgroundColor='#ccc'
-                                    onPress={() => setIsVisible(false)}
-                                /> :
-                                [
-                                    <CustomButtonBox
-                                        title='Delete'
-                                        backgroundColor='red'
-                                        onPress={deleteGoods}
-                                    />,
-                                    <CustomButtonBox
-                                        title='Switch'
-                                        backgroundColor='pink'
-                                        onPress={changeStatus}
-                                    />
-                                ]
+return (
+    <View style={styles.ViewStyle}>
+        <Modal transparent={true} animationType="fade" visible={isVisible}>
+            <View style={styles.modalOverlay}>
+                <View style={styles.modalContainer}>
+                    <Text style={styles.title}>{mode === "add" ? "Add GOODS" : "Edit GOODS"}</Text>
+                    <TextInputs width={300} style={styles.input} text="Title ..." value={title} onChangeText={setTitle} />
+                    <TextInputs width={300} style={styles.input} text="Cost ..." value={cost} keyboardType="numeric" onChangeText={setCost} />
+                    <TextInputs width={300} style={styles.input} text="Image ..." value={img} onChangeText={setImg} />
+                    <View style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        width: 300,
+                        marginTop: 15
+                    }}>
 
-                            }
-
+                        {mode === "add" ?
                             <CustomButtonBox
-                                title={mode === "add" ? "Add" : "Save"}
-                                backgroundColor={mode === "add" ? "green" : "blue"}
-                                onPress={mode === "add" ? addGoods : editGoods}
-                            />
-                        </View>
+                                title='Cancel'
+                                backgroundColor='#ccc'
+                                onPress={() => setIsVisible(false)}
+                            /> :
+                            [
+                                <CustomButtonBox
+                                    title='Delete'
+                                    backgroundColor='red'
+                                    onPress={deleteGoods}
+                                />,
+                                <CustomButtonBox
+                                    title='Switch'
+                                    backgroundColor='pink'
+                                    onPress={switchStatus}
+                                />
+                            ]
 
+                        }
+
+                        <CustomButtonBox
+                            title={mode === "add" ? "Add" : "Save"}
+                            backgroundColor={mode === "add" ? "#0D47A1" : "blue"}
+                            onPress={mode === "add" ? addGoods : editGoods}
+                        />
                     </View>
-                </View>
-            </Modal>
-            <TextInputs text="Search a name of goods ..." width={420} value={key}
-                onChangeText={searchHero} />
-            <View style={styles.AllGoods}>
-                <FlatList
-                    data={goods}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => {
-                        return (
-                            <TouchableOpacity onPress={() => openModal("edit", item)}>
-                                <ItemCard  name={item.title} cost={item.cost} img={item.img} status={item.status} />
-                            </TouchableOpacity>
-                        );
-                    }}
-                />
-            </View>
 
-            <View style={styles.container}>
-                <CustomButtonBox title="CLEAR ALL" backgroundColor="#d6542c" onPress={clearAllStorage} />
-                <TotalSummary total={total} />
-                <CustomButtonBox title="ADD" backgroundColor="#124c81" onPress={() => openModal("add")} />
+                </View>
             </View>
+        </Modal>
+        <TextInputs text="Search a name of goods ..." width={420} value={key}
+            onChangeText={searchHero} />
+        <View style={styles.AllGoods}>
+            <FlatList
+                data={filteredHeroes}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => {
+                    return (
+                        <TouchableOpacity onPress={() => openModal("edit", item)}>
+                            <ItemCard name={item.title} cost={item.cost} img={item.img} status={item.status} />
+                        </TouchableOpacity>
+                    );
+                }}
+            />
         </View>
-    );
+
+        <View style={styles.container}>
+            <CustomButtonBox title="CLEAR ALL" backgroundColor="#8e6a9a" onPress={clearAllStorage} />
+            <TotalSummary total={totalSum.total} />
+            <CustomButtonBox title="ADD" backgroundColor="#427794" onPress={() => openModal("add")} />
+        </View>
+    </View>
+);
 };
 
 const styles = StyleSheet.create({
     ViewStyle: {
         flex: 1,
         alignItems: "center",
-        backgroundColor: "white",
+        //backgroundColor: "#212121",
     },
     AllGoods: {
-        // borderWidth: 1,
-        // borderColor: "#294cdc",
+        borderTopWidth: 1,
+        borderBottomWidth: 1,
+        borderColor: "white",
         width: 420,
         height: 700,
         borderRadius: 5,
         marginBottom: 15,
-        backgroundColor: "white",
+        marginTop: 10,
     },
     container: {
         flexDirection: "row",

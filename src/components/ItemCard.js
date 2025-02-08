@@ -26,7 +26,7 @@ const ItemCard = ({ name, cost, status, img }) => {
 
 const styles = StyleSheet.create({
     CardStyle: {
-        width: 408,
+        width: 420,
         height: 120, 
         marginTop: 15,
         borderWidth: 2,
@@ -35,8 +35,9 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         backgroundColor: "white",
-        marginLeft: 5,
+        //marginLeft: 5,
         borderRadius: 40,
+        
     },
     leftSection: {
         flexDirection: "row",
@@ -71,13 +72,15 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     status: {
-        paddingVertical: 5,
-        paddingHorizontal: 15,
+        paddingTop: 5,
+        paddingBottom: 5,
+        paddingLeft: 15,
+        paddingRight: 15,
         borderRadius: 50, 
         color: "white",
         fontWeight: "bold",
         fontSize: 14,
-        marginRight: 5
+        marginRight: 15
     },
 });
 

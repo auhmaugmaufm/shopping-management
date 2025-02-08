@@ -12,14 +12,13 @@ const TextInputs = ({ width, text, value, onChangeText, keyboardType }) => {
 const styles = StyleSheet.create({
     input: {
         // borderWidth: 1,
-        // borderColor: '#294cdc',
+        // borderColor: 'black',
         borderRadius: 50,
         padding: 10,
         fontSize: 18,
-        marginTop: 10,
-        marginBottom: 10,
+        marginTop: 15,
         alignItems: 'center',
-        backgroundColor: '#124c81',
+        backgroundColor: '#928181',
         maxHeight: 50,
         color: 'white',
     }

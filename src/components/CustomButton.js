@@ -34,11 +34,9 @@ export const CustomButtonSmall = ({ title, onPress, backgroundColor }) => {
 }
 const styles = StyleSheet.create({
     ButtonBox: {
-        borderWidth: 1,
-        borderColor: '#294cdc',
         width: 80,
         height: 60,
-        borderRadius: 5,
+        borderRadius: 50,
     },
     TextBox: {
         textAlign: 'center',

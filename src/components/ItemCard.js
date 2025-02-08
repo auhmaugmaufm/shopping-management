@@ -29,14 +29,14 @@ const styles = StyleSheet.create({
         width: 408,
         height: 120, 
         marginTop: 15,
-        borderBottomWidth: 1,
-        borderLeftWidth: 1,
+        borderWidth: 2,
+        // borderLeftWidth: 1,
         borderColor: "black",
         flexDirection: "row",
         alignItems: "center",
         backgroundColor: "white",
         marginLeft: 5,
-        borderBottomLeftRadius: 30,
+        borderRadius: 40,
     },
     leftSection: {
         flexDirection: "row",
@@ -46,9 +46,13 @@ const styles = StyleSheet.create({
     image: {
         width: 150, 
         height: 119, 
-        borderTopRightRadius: 30, 
+        borderTopLeftRadius: 40, 
+        //borderTopRightRadius: 40, 
         marginRight: 10,
-        borderBottomLeftRadius: 30
+        borderBottomLeftRadius: 40,
+        borderColor: 'black',
+        borderWidth: 1,
+
     },
     textContainer: {
         flex: 1,

@@ -9,18 +9,29 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const STORAGE_KEY = "@goods_data";
 
 const HomeScreen = () => {
+    const [id, setId] = useState('')
     const [title, setTitle] = useState("");
     const [cost, setCost] = useState("");
     const [img, setImg] = useState("");
     const [status, setStatus] = useState('')
+    let total = 0
 
     const [goods, setGoods] = useState([]);
     const [mode, setMode] = useState("");
     const [isVisible, setIsVisible] = useState(false);
-    const [selectedItem, setSelectedItem] = useState(null);
+
+    const [key, setKey] = useState('');
+    const [filteredHeroes, setFilteredHeroes] = useState(goods);
+    const searchHero = (text) => {
+        setKey(text)
+        const g = goods.filter((good) =>
+            good.title.toLowerCase().includes(text.toLowerCase())
+        )
+        setFilteredHeroes(g);
+    }
 
     const addGoods = async () => {
-        if (!title.trim() || cost < 0) {
+        if (!title.trim() || isNaN(cost) || cost === "" || parseFloat(cost) < 0) {
             alert("กรุณากรอกค่า Title และ price ห้ามน้อยกว่า 0");
             return;
         }
@@ -37,25 +48,26 @@ const HomeScreen = () => {
         } catch (error) {
             console.log('Error: ', error)
         }
-        totalSum()
+        searchHero(key)
         setIsVisible(false);
 
     };
 
     const editGoods = async () => {
-        if (!title.trim() || cost < 0) {
+        if (!title.trim() || isNaN(cost) || cost === "" || parseFloat(cost) < 0) {
             alert("กรุณากรอกค่า Title และ price ห้ามน้อยกว่า 0");
             return;
         }
 
         const updatedGoods = goods.map((item) => {
-            if (item.id === selectedItem.id) {
+            if (item.id === id) {
                 return { ...item, title, cost, img, status };
             }
             return item;
         });
 
         setGoods(updatedGoods);
+        setId('')
         setTitle("");
         setCost("");
         setImg("");
@@ -69,8 +81,9 @@ const HomeScreen = () => {
         }
     };
 
-    const deleteGoods = async (id) => {
+    const deleteGoods = async () => {
         const newGoods = goods.filter((item) => item.id != id)
+        setGoods(newGoods)
         setIsVisible(false);
         try {
             await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newGoods))
@@ -79,7 +92,23 @@ const HomeScreen = () => {
         }
     }
 
-    let total = 0
+
+    const changeStatus = async () => {
+
+        const updatedGoods = goods.map((item) => {
+            if (item.id === selectedItem.id) {
+                return { ...item, title, cost, img, status: 'Bought' };
+            }
+            return item
+        });
+        setGoods(updatedGoods)
+        setIsVisible(false);
+        try {
+            await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedGoods))
+        } catch (error) {
+            console.log('Error: ', error)
+        }
+    }
 
 
     const loadGoods = async () => {
@@ -99,23 +128,22 @@ const HomeScreen = () => {
 
     useEffect(() => {
         loadGoods()
-    }, [isVisible])
+    }, [goods])
 
     const openModal = (text, item) => {
         setMode(text);
         if (text !== "add" && item) {
-            let id = item.id
+            setId(item.id)
             setTitle(item.title);
             setCost(item.cost);
             setImg(item.img);
             setStatus(item.status)
-            setSelectedItem(item);
         } else {
+            setId('')
             setTitle('');
             setCost('');
             setImg('');
             setStatus("Not yet!"); // อันนี้ส่งค่าในส่วนของการเพิ่มสินค้า
-            setSelectedItem(null);
         }
         setIsVisible(true);
     };
@@ -150,18 +178,18 @@ const HomeScreen = () => {
                                     title='Cancel'
                                     backgroundColor='#ccc'
                                     onPress={() => setIsVisible(false)}
-                                /> : 
+                                /> :
                                 [
                                     <CustomButtonBox
                                         title='Delete'
                                         backgroundColor='red'
                                         onPress={deleteGoods}
                                     />,
-                                    // <CustomButtonBox
-                                    //     title='SHH'
-                                    //     backgroundColor='yellow'
-                                    //     onPress={deleteGoods}
-                                    // />
+                                    <CustomButtonBox
+                                        title='Switch'
+                                        backgroundColor='pink'
+                                        onPress={changeStatus}
+                                    />
                                 ]
 
                             }
@@ -176,7 +204,8 @@ const HomeScreen = () => {
                     </View>
                 </View>
             </Modal>
-            <TextInputs text="Search a name of goods ..." width={420} />
+            <TextInputs text="Search a name of goods ..." width={420} value={key}
+                onChangeText={searchHero} />
             <View style={styles.AllGoods}>
                 <FlatList
                     data={goods}
@@ -184,7 +213,7 @@ const HomeScreen = () => {
                     renderItem={({ item }) => {
                         return (
                             <TouchableOpacity onPress={() => openModal("edit", item)}>
-                                <ItemCard name={item.title} cost={item.cost} img={item.img} status={item.status} />
+                                <ItemCard  name={item.title} cost={item.cost} img={item.img} status={item.status} />
                             </TouchableOpacity>
                         );
                     }}
@@ -192,9 +221,9 @@ const HomeScreen = () => {
             </View>
 
             <View style={styles.container}>
-                <CustomButtonBox title="CLEAR ALL" backgroundColor="red" onPress={clearAllStorage} />
+                <CustomButtonBox title="CLEAR ALL" backgroundColor="#d6542c" onPress={clearAllStorage} />
                 <TotalSummary total={total} />
-                <CustomButtonBox title="ADD" backgroundColor="#e79517" onPress={() => openModal("add")} />
+                <CustomButtonBox title="ADD" backgroundColor="#124c81" onPress={() => openModal("add")} />
             </View>
         </View>
     );
@@ -204,15 +233,15 @@ const styles = StyleSheet.create({
     ViewStyle: {
         flex: 1,
         alignItems: "center",
-        backgroundColor: "#acd2f4",
+        backgroundColor: "white",
     },
     AllGoods: {
-        borderWidth: 1,
-        borderColor: "#294cdc",
+        // borderWidth: 1,
+        // borderColor: "#294cdc",
         width: 420,
         height: 700,
         borderRadius: 5,
-        marginBottom: 10,
+        marginBottom: 15,
         backgroundColor: "white",
     },
     container: {
@@ -228,8 +257,8 @@ const styles = StyleSheet.create({
     },
     modalContainer: {
         width: 350,
-        backgroundColor: "#fff",
-        borderRadius: 10,
+        backgroundColor: "white",
+        borderRadius: 50,
         padding: 28,
         alignItems: "center",
         elevation: 5,

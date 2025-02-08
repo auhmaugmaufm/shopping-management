@@ -26,31 +26,30 @@ export const CustomButtonLong = ({ title, onPress, backgroundColor }) => {
 
 const styles = StyleSheet.create({
     ButtonBox: {
-        width: 80,
+        width: 85,
         height: 60,
         borderRadius: 50,
     },
     TextBox: {
         textAlign: 'center',
         color: 'white',
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: 'bold'
     },
     TextLong: {
         textAlign: 'center',
         color: 'white',
         fontSize: 20,
+        fontWeight: 'bold'
     },
     ButtonLong: {
-        backgroundColor: 'blue',
         padding: 10,
         alignItems: 'center',
         justifyContent: 'center' ,
-        borderRadius: 5,
+        borderRadius: 50,
         height: 50,
-        marginTop: 2,
+        marginTop: 15,
         width: 300,
-        borderWidth: 1,
     },
     ButtonSmall: {
         borderWidth: 1,

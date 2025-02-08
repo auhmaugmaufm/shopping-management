@@ -5,6 +5,7 @@ import TotalSummary from "../components/TotalSummary";
 import ItemCard from "../components/ItemCard";
 import TextInputs from "../components/TextInput";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const STORAGE_KEY = "@goods_data";
 
@@ -29,11 +30,13 @@ const HomeScreen = () => {
     const [img, setImg] = useState("");
     const [status, setStatus] = useState('')
     const [totalSum, dispatch] = useReducer(reducer, { total: 0 })
+    const [darkMode, setDarkMode] = useState(false)
 
 
     const [goods, setGoods] = useState([]);
     const [mode, setMode] = useState("");
-    const [isVisible, setIsVisible] = useState(false);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isSettingVisible, setIsSettingVisible] = useState(false);
 
     const [key, setKey] = useState('');
     const [filteredHeroes, setFilteredHeroes] = useState(goods);
@@ -45,8 +48,12 @@ const HomeScreen = () => {
         );
         setFilteredHeroes(filtered);
     };
-
-
+    const [backgroundColor, setBackgroundColor] = useState('white')
+    const changedTheme = () => {
+        setDarkMode(!darkMode)
+        setIsSettingVisible(false)
+        setBackgroundColor(darkMode ? "white" : "#212121");
+    }
 
     const addGoods = async () => {
         if (!title.trim() || isNaN(cost) || cost === "" || parseFloat(cost) < 0) {
@@ -58,6 +65,7 @@ const HomeScreen = () => {
         const updatedGoods = [newGoods, ...goods];
         dispatch({ type: 'Not yet!', total: parseFloat(newGoods.cost) });
         setGoods(updatedGoods);
+        setIsModalVisible(false);
         setTitle("");
         setCost("");
         setImg("");
@@ -68,7 +76,6 @@ const HomeScreen = () => {
         } catch (error) {
             console.log('Error: ', error)
         }
-        setIsVisible(false);
     };
 
     const editGoods = async () => {
@@ -85,18 +92,19 @@ const HomeScreen = () => {
         });
 
         setGoods(updatedGoods);
+        setIsModalVisible(false);
         setId("")
         setTitle("");
         setCost("");
         setImg("");
         setStatus("");
-        setIsVisible(false);
+
 
         try {
             await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedGoods))
         } catch (error) {
             console.log('Error: ', error)
-        }a
+        }
     };
 
     const switchStatus = async () => {
@@ -109,12 +117,13 @@ const HomeScreen = () => {
             return item;
         });
         setGoods(updatedGoods);
+        setIsModalVisible(false);
         setId("")
         setTitle("");
         setCost("");
         setImg("");
         setStatus("");
-        setIsVisible(false);
+
 
         try {
             await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedGoods))
@@ -129,7 +138,7 @@ const HomeScreen = () => {
         }
         const newGoods = goods.filter((item) => item.id != id)
         setGoods(newGoods)
-        setIsVisible(false);
+        setIsModalVisible(false);
         try {
             await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newGoods))
         } catch (error) {
@@ -176,7 +185,6 @@ const HomeScreen = () => {
     //     console.log("Goods list:", goods);
     // }, [goods]);
 
-
     const openModal = (text, item) => {
         setMode(text);
         if (text !== "add" && item) {
@@ -192,10 +200,12 @@ const HomeScreen = () => {
             setImg('');
             setStatus("Not yet!"); // อันนี้ส่งค่าในส่วนของการเพิ่มสินค้า
         }
-        setIsVisible(true);
+        setIsModalVisible(true);
     };
 
+
     const clearAllStorage = async () => {
+        setIsSettingVisible(false);
         try {
             await AsyncStorage.clear();
             dispatch({ type: 'Reset' })
@@ -204,15 +214,26 @@ const HomeScreen = () => {
         } catch (error) {
             console.log('Failed to clear storage: ', error);
         }
+        
     };
 
 
     return (
-        <View style={styles.ViewStyle}>
-            <Modal transparent={true} animationType="fade" visible={isVisible}>
+        <View style={[styles.ViewStyle, { backgroundColor }]}>
+            <Modal transparent={true} animationType="fade" visible={isModalVisible}>
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContainer}>
-                        <Text style={styles.title}>{mode === "add" ? "Add GOODS" : "Edit GOODS"}</Text>
+                        <View style={{
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                            width: 280,
+                            paddingLeft: 30
+                        }}>
+                            <View></View>
+                            <Text style={styles.title}>{mode === "add" ? "Add GOODS" : "Edit GOODS"}</Text>
+                            <TouchableOpacity onPress={() => setIsModalVisible(false)}><Icon name="cancel" size={30} color="#ccc" /></TouchableOpacity>
+                        </View>
+
                         <TextInputs width={300} style={styles.input} text="Title ..." value={title} onChangeText={setTitle} />
                         <TextInputs width={300} style={styles.input} text="Cost ..." value={cost} keyboardType="numeric" onChangeText={setCost} />
                         <TextInputs width={300} style={styles.input} text="Image ..." value={img} onChangeText={setImg} />
@@ -224,33 +245,69 @@ const HomeScreen = () => {
                         }}>
 
                             {mode === "add" ?
-                                <CustomButtonBox
-                                    title='Cancel'
-                                    backgroundColor='#ccc'
-                                    onPress={() => setIsVisible(false)}
+                                <CustomButtonLong
+                                    title="Add"
+                                    backgroundColor="#0D47A1"
+                                    onPress={() => addGoods()}
                                 /> :
                                 [
                                     <CustomButtonBox
                                         title='Delete'
                                         backgroundColor='red'
-                                        onPress={deleteGoods}
+                                        onPress={() => deleteGoods()}
                                     />,
                                     <CustomButtonBox
                                         title='Switch'
                                         backgroundColor='pink'
-                                        onPress={switchStatus}
+                                        onPress={() => switchStatus()}
+                                    />,
+                                    <CustomButtonBox
+                                        title="Save"
+                                        backgroundColor='#427794'
+                                        onPress={() => editGoods()}
                                     />
                                 ]
 
                             }
 
-                            <CustomButtonBox
-                                title={mode === "add" ? "Add" : "Save"}
-                                backgroundColor={mode === "add" ? "#0D47A1" : "blue"}
-                                onPress={mode === "add" ? addGoods : editGoods}
-                            />
                         </View>
 
+                    </View>
+                </View>
+            </Modal>
+            <Modal transparent={true} animationType="fade" visible={isSettingVisible}>
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContainer}>
+                        <View style={{
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                            width: 280,
+                            paddingLeft: 30
+                        }}>
+                            <View></View>
+                            <Text style={styles.title}>Setting</Text>
+                            <TouchableOpacity onPress={() => setIsSettingVisible(false)}><Icon name="cancel" size={30} color="#ccc" /></TouchableOpacity>
+                        </View>
+
+                        <CustomButtonLong
+                            title="Change a Theme"
+                            backgroundColor="#0D47A1"
+                            onPress={() => changedTheme()}
+                        />
+                        <CustomButtonLong
+                            title="Delete All"
+                            backgroundColor="red"
+                            onPress={() => {
+                                Alert.alert('Are you sure ? ', 'Delete all Goods', [
+                                    {
+                                        text: 'Yes',
+                                        onPress: () => {clearAllStorage()}
+                                    },{
+                                        text: 'No'
+                                    }
+                                ])
+                            }}
+                        />
                     </View>
                 </View>
             </Modal>
@@ -272,7 +329,8 @@ const HomeScreen = () => {
             </View>
 
             <View style={styles.container}>
-                <CustomButtonBox title="CLEAR ALL" backgroundColor="#8e6a9a" onPress={clearAllStorage} />
+
+                <CustomButtonBox title="SETTING" backgroundColor="#8e6a9a" onPress={() => setIsSettingVisible(true)} />
                 <TotalSummary total={totalSum.total} />
                 <CustomButtonBox title="ADD" backgroundColor="#427794" onPress={() => openModal("add")} />
             </View>
@@ -314,6 +372,10 @@ const styles = StyleSheet.create({
         padding: 28,
         alignItems: "center",
         elevation: 5,
+    },
+    title: {
+        fontSize: 30,
+        fontWeight: 'bold'
     }
 });
 

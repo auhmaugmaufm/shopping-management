@@ -39,14 +39,14 @@ const HomeScreen = () => {
     const [isSettingVisible, setIsSettingVisible] = useState(false);
 
     const [key, setKey] = useState('');
-    const [filteredHeroes, setFilteredHeroes] = useState(goods);
+    const [filteredGoods, setFilteredGoods] = useState(goods);
 
-    const searchHero = (text) => {
+    const searchGoods = (text) => {
         setKey(text);
         const filtered = goods.filter((good) =>
             good.title.toLowerCase().includes(text.toLowerCase())
         );
-        setFilteredHeroes(filtered);
+        setFilteredGoods(filtered);
     };
     const [backgroundColor, setBackgroundColor] = useState('white')
     const changedTheme = () => {
@@ -178,7 +178,7 @@ const HomeScreen = () => {
     }, []);
 
     useEffect(() => {
-        searchHero(key);
+        searchGoods(key);
     }, [goods]);
 
     // useEffect(() => {
@@ -234,9 +234,9 @@ const HomeScreen = () => {
                             <TouchableOpacity onPress={() => setIsModalVisible(false)}><Icon name="cancel" size={30} color="#ccc" /></TouchableOpacity>
                         </View>
 
-                        <TextInputs width={300} style={styles.input} text="Title ..." value={title} onChangeText={setTitle} />
-                        <TextInputs width={300} style={styles.input} text="Cost ..." value={cost} keyboardType="numeric" onChangeText={setCost} />
-                        <TextInputs width={300} style={styles.input} text="Image ..." value={img} onChangeText={setImg} />
+                        <TextInputs width={300} style={styles.input} text="Enter a name..." value={title} onChangeText={setTitle} />
+                        <TextInputs width={300} style={styles.input} text="Enter a cost..." value={cost} keyboardType="numeric" onChangeText={setCost} />
+                        <TextInputs width={300} style={styles.input} text="Paste a  image..." value={img} onChangeText={setImg} />
                         <View style={{
                             flexDirection: "row",
                             justifyContent: "space-between",
@@ -290,7 +290,7 @@ const HomeScreen = () => {
                         </View>
 
                         <CustomButtonLong
-                            title="Change a Theme"
+                            title='Change a Theme'
                             backgroundColor="#0D47A1"
                             onPress={() => changedTheme()}
                         />
@@ -312,10 +312,10 @@ const HomeScreen = () => {
                 </View>
             </Modal>
             <TextInputs text="Search a name of goods ..." width={420} value={key}
-                onChangeText={searchHero} />
+                onChangeText={searchGoods} />
             <View style={styles.AllGoods}>
                 <FlatList
-                    data={filteredHeroes}
+                    data={filteredGoods}
                     keyExtractor={(item) => item.id.toString()}
                     renderItem={({ item }) => {
                         //console.log(item.id)
@@ -342,7 +342,6 @@ const styles = StyleSheet.create({
     ViewStyle: {
         flex: 1,
         alignItems: "center",
-        //backgroundColor: "#212121",
     },
     AllGoods: {
         borderTopWidth: 1,

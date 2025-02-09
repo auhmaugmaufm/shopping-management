@@ -252,16 +252,19 @@ const HomeScreen = () => {
                                 /> :
                                 [
                                     <CustomButtonBox
+                                        key = 'delete'
                                         title='Delete'
                                         backgroundColor='red'
                                         onPress={() => deleteGoods()}
                                     />,
                                     <CustomButtonBox
+                                        key='Switch'  
                                         title='Switch'
                                         backgroundColor='pink'
                                         onPress={() => switchStatus()}
                                     />,
                                     <CustomButtonBox
+                                        key='save'
                                         title="Save"
                                         backgroundColor='#427794'
                                         onPress={() => editGoods()}

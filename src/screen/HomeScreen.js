@@ -29,14 +29,14 @@ const HomeScreen = () => {
     const [cost, setCost] = useState("");
     const [img, setImg] = useState("");
     const [status, setStatus] = useState('')
+    const [goods, setGoods] = useState([]);
+    
     const [totalSum, dispatch] = useReducer(reducer, { total: 0 })
     const [darkMode, setDarkMode] = useState(false)
-
-
-    const [goods, setGoods] = useState([]);
     const [mode, setMode] = useState("");
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isSettingVisible, setIsSettingVisible] = useState(false);
+    const [backgroundColor, setBackgroundColor] = useState('white')
 
     const [key, setKey] = useState('');
     const [filteredGoods, setFilteredGoods] = useState(goods);
@@ -48,7 +48,8 @@ const HomeScreen = () => {
         );
         setFilteredGoods(filtered);
     };
-    const [backgroundColor, setBackgroundColor] = useState('white')
+
+    
     const changedTheme = () => {
         setDarkMode(!darkMode)
         setIsSettingVisible(false)
@@ -146,6 +147,19 @@ const HomeScreen = () => {
         }
     }
 
+    const clearAllStorage = async () => {
+        setIsSettingVisible(false);
+        try {
+            await AsyncStorage.clear();
+            dispatch({ type: 'Reset' })
+            setGoods([]);
+            //console.log('Clear');
+        } catch (error) {
+            console.log('Failed to clear storage: ', error);
+        }
+        
+    };
+
 
     const loadGoods = async () => {
         try {
@@ -203,21 +217,6 @@ const HomeScreen = () => {
         setIsModalVisible(true);
     };
 
-
-    const clearAllStorage = async () => {
-        setIsSettingVisible(false);
-        try {
-            await AsyncStorage.clear();
-            dispatch({ type: 'Reset' })
-            setGoods([]);
-            console.log('Clear Done!');
-        } catch (error) {
-            console.log('Failed to clear storage: ', error);
-        }
-        
-    };
-
-
     return (
         <View style={[styles.ViewStyle, { backgroundColor }]}>
             <Modal transparent={true} animationType="fade" visible={isModalVisible}>
@@ -234,9 +233,9 @@ const HomeScreen = () => {
                             <TouchableOpacity onPress={() => setIsModalVisible(false)}><Icon name="cancel" size={30} color="#ccc" /></TouchableOpacity>
                         </View>
 
-                        <TextInputs width={300} style={styles.input} text="Enter a name..." value={title} onChangeText={setTitle} />
-                        <TextInputs width={300} style={styles.input} text="Enter a cost..." value={cost} keyboardType="numeric" onChangeText={setCost} />
-                        <TextInputs width={300} style={styles.input} text="Paste a  image..." value={img} onChangeText={setImg} />
+                        <TextInputs width={300} style={styles.input} text="Enter a name" value={title} onChangeText={setTitle} />
+                        <TextInputs width={300} style={styles.input} text="Enter a cost" value={cost} keyboardType="numeric" onChangeText={setCost} />
+                        <TextInputs width={300} style={styles.input} text="Paste an image (Optional)" value={img} onChangeText={setImg} />
                         <View style={{
                             flexDirection: "row",
                             justifyContent: "space-between",
@@ -254,19 +253,28 @@ const HomeScreen = () => {
                                     <CustomButtonBox
                                         key = 'delete'
                                         title='Delete'
-                                        backgroundColor='red'
-                                        onPress={() => deleteGoods()}
+                                        backgroundColor='#CD1818'
+                                        onPress={() => {
+                                            Alert.alert('Are you sure ? ', 'Delete this Goods', [
+                                                {
+                                                    text: 'Yes',
+                                                    onPress: () => {deleteGoods()}
+                                                },{
+                                                    text: 'No'
+                                                }
+                                            ])
+                                        }}
                                     />,
                                     <CustomButtonBox
                                         key='Switch'  
                                         title='Switch'
-                                        backgroundColor='pink'
+                                        backgroundColor='#321E1E'
                                         onPress={() => switchStatus()}
                                     />,
                                     <CustomButtonBox
                                         key='save'
                                         title="Save"
-                                        backgroundColor='#427794'
+                                        backgroundColor='#116D6E'
                                         onPress={() => editGoods()}
                                     />
                                 ]
@@ -294,12 +302,12 @@ const HomeScreen = () => {
 
                         <CustomButtonLong
                             title='Change a Theme'
-                            backgroundColor="#0D47A1"
+                            backgroundColor="#5C5470"
                             onPress={() => changedTheme()}
                         />
                         <CustomButtonLong
                             title="Delete All"
-                            backgroundColor="red"
+                            backgroundColor="#BE3144"
                             onPress={() => {
                                 Alert.alert('Are you sure ? ', 'Delete all Goods', [
                                     {
@@ -333,9 +341,9 @@ const HomeScreen = () => {
 
             <View style={styles.container}>
 
-                <CustomButtonBox title="SETTING" backgroundColor="#8e6a9a" onPress={() => setIsSettingVisible(true)} />
+                <CustomButtonBox title="SETTING" backgroundColor="#622569" onPress={() => setIsSettingVisible(true)} />
                 <TotalSummary total={totalSum.total} />
-                <CustomButtonBox title="ADD" backgroundColor="#427794" onPress={() => openModal("add")} />
+                <CustomButtonBox title="ADD" backgroundColor="#116D6E" onPress={() => openModal("add")} />
             </View>
         </View>
     );

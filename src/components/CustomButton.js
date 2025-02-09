@@ -50,12 +50,5 @@ const styles = StyleSheet.create({
         height: 50,
         marginTop: 15,
         width: 300,
-    },
-    ButtonSmall: {
-        borderWidth: 1,
-        borderColor: '#294cdc',
-        width: 30,
-        height: 30,
-        borderRadius: 5,
     }
 })

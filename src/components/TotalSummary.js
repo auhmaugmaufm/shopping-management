@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
         padding: 8,
         paddingLeft: 20,
         paddingRight: 20,
-        backgroundColor: '#c1ccdd'
+        backgroundColor: '#d6d4e0'
     },
     head: {
         fontSize: 12,

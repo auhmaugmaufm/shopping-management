@@ -23,7 +23,6 @@ const reducer = (state, action) => {
 }
 
 const HomeScreen = () => {
-
     const [goods, setGoods] = useState([]);
     const [totalSum, dispatch] = useReducer(reducer, { total: 0 })
     const [mode, setMode] = useState("");
@@ -45,7 +44,9 @@ const HomeScreen = () => {
     }, []);
 
     useEffect(() => {
-        searchGoods(key);
+        setFilteredGoods(goods)
+        loadTotal(goods);
+        setKey('')
     }, [goods]);
 
     // โหลดสินค้าในอดีตที่เราเคยเพิ่มไว้ ผ่าน local storage
@@ -56,7 +57,6 @@ const HomeScreen = () => {
             if (storedGoods) {
                 const parsedGoods = JSON.parse(storedGoods);
                 setGoods(parsedGoods);
-                loadTotal(parsedGoods);
             } else {
                 setGoods([])
             }
@@ -65,8 +65,9 @@ const HomeScreen = () => {
         }
     }
 
-    // คำนวณราคาสินค้าที่เรายังไม่ซื้อ ทำงานเฉพาะครั้งแรกเมื่อเข้าแอพ
+    // คำนวณราคาสินค้าที่เรายังไม่ซื้อ ทำงานทุกครั้งที่มีการเปลี่ยนแปลงข้อมูลสินค้า
     const loadTotal = (goods) => {
+        dispatch({ type: 'Reset'});
         let totalBeforeStart = 0;
         goods.forEach((item) => {
             if (item.status === 'Not yet!') {
@@ -102,7 +103,6 @@ const HomeScreen = () => {
         const defaultImg = 'https://i.pinimg.com/736x/18/36/67/183667deaaecb9c275b2c3ae80a58c68.jpg'
         const newGoods = { id: Date.now().toString(), title, cost, status, img: img.trim() ? img : defaultImg }
         const updatedGoods = [newGoods, ...goods];
-        dispatch({ type: 'Not yet!', total: parseFloat(newGoods.cost) });
         setGoods(updatedGoods);
         setIsModalVisible(false);
         setTitle("");
@@ -130,7 +130,6 @@ const HomeScreen = () => {
             }
             return item;
         });
-
         setGoods(updatedGoods);
         setIsModalVisible(false);
         setId("")
@@ -151,7 +150,6 @@ const HomeScreen = () => {
         const updatedGoods = goods.map((item) => {
             if (item.id.toString() === id) {
                 let tmp = item.status != 'Bought' ? 'Bought' : 'Not yet!'
-                dispatch({ type: tmp, total: parseFloat(item.cost) });
                 return { ...item, status: tmp };
             }
             return item;
@@ -174,9 +172,6 @@ const HomeScreen = () => {
 
     // การลบสินค้าทีละชิ้น มีการถามอีกครั้งเพื่อยืนยันการลบ เมื่อทำการกดลบ
     const deleteGoods = async () => {
-        if (status === 'Not yet!') {
-            dispatch({ type: 'Bought', total: cost });
-        }
         const newGoods = goods.filter((item) => item.id != id)
         setGoods(newGoods)
         setIsModalVisible(false);
@@ -192,7 +187,6 @@ const HomeScreen = () => {
         setIsSettingVisible(false);
         try {
             await AsyncStorage.clear();
-            dispatch({ type: 'Reset' })
             setGoods([]);
             //console.log('Clear');
         } catch (error) {

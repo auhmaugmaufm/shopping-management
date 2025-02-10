@@ -22,25 +22,68 @@ const reducer = (state, action) => {
     }
 }
 
-
 const HomeScreen = () => {
+
+    const [goods, setGoods] = useState([]);
+    const [totalSum, dispatch] = useReducer(reducer, { total: 0 })
+    const [mode, setMode] = useState("");
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isSettingVisible, setIsSettingVisible] = useState(false);
+    const [darkMode, setDarkMode] = useState(false)
+    const [backgroundColor, setBackgroundColor] = useState('white')
+    const [key, setKey] = useState('');
+    const [filteredGoods, setFilteredGoods] = useState(goods);
+
     const [id, setId] = useState('')
     const [title, setTitle] = useState("");
     const [cost, setCost] = useState("");
     const [img, setImg] = useState("");
     const [status, setStatus] = useState('')
-    const [goods, setGoods] = useState([]);
     
-    const [totalSum, dispatch] = useReducer(reducer, { total: 0 })
-    const [darkMode, setDarkMode] = useState(false)
-    const [mode, setMode] = useState("");
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const [isSettingVisible, setIsSettingVisible] = useState(false);
-    const [backgroundColor, setBackgroundColor] = useState('white')
+    useEffect(() => {
+        loadGoods();
+    }, []);
 
-    const [key, setKey] = useState('');
-    const [filteredGoods, setFilteredGoods] = useState(goods);
+    useEffect(() => {
+        searchGoods(key);
+    }, [goods]);
 
+    // โหลดสินค้าในอดีตที่เราเคยเพิ่มไว้ ผ่าน local storage
+    const loadGoods = async () => {
+        try {
+            const storedGoods = await AsyncStorage.getItem(STORAGE_KEY)
+            //console.log(storedGoods)
+            if (storedGoods) {
+                const parsedGoods = JSON.parse(storedGoods);
+                setGoods(parsedGoods);
+                loadTotal(parsedGoods);
+            } else {
+                setGoods([])
+            }
+        } catch (error) {
+            console.log('Failed to load: ', error)
+        }
+    }
+
+    // คำนวณราคาสินค้าที่เรายังไม่ซื้อ ทำงานเฉพาะครั้งแรกเมื่อเข้าแอพ
+    const loadTotal = (goods) => {
+        let totalBeforeStart = 0;
+        goods.forEach((item) => {
+            if (item.status === 'Not yet!') {
+                totalBeforeStart += parseFloat(item.cost);
+            }
+        });
+        dispatch({ type: 'Not yet!', total: totalBeforeStart });
+    };
+
+    // การเปลี่ยนธีม : Bright(default) & Dark Mode
+    const changedTheme = () => {
+        setDarkMode(!darkMode)
+        setIsSettingVisible(false)
+        setBackgroundColor(darkMode ? "white" : "#212121");
+    }
+    
+    // การค้นหาสินค้า
     const searchGoods = (text) => {
         setKey(text);
         const filtered = goods.filter((good) =>
@@ -49,18 +92,13 @@ const HomeScreen = () => {
         setFilteredGoods(filtered);
     };
 
-    
-    const changedTheme = () => {
-        setDarkMode(!darkMode)
-        setIsSettingVisible(false)
-        setBackgroundColor(darkMode ? "white" : "#212121");
-    }
-
+    // การเพิ่มสินค้า โดยตั้งค่าสถานะเป็น Not yet! เป็นค่าเริ่มต้นอัตโนมัติ
     const addGoods = async () => {
         if (!title.trim() || isNaN(cost) || cost === "" || parseFloat(cost) < 0) {
             alert("กรุณากรอกค่า Title และ Cost ห้ามน้อยกว่า 0");
             return;
         }
+        // กำหนดค่าเริ่มต้น ของรูปสินค้า หากไม่ได้ใส่ลิงก์มาจะใช้รูป default
         const defaultImg = 'https://i.pinimg.com/736x/18/36/67/183667deaaecb9c275b2c3ae80a58c68.jpg'
         const newGoods = { id: Date.now().toString(), title, cost, status, img: img.trim() ? img : defaultImg }
         const updatedGoods = [newGoods, ...goods];
@@ -79,6 +117,7 @@ const HomeScreen = () => {
         }
     };
 
+    // การแก้ไข้สินค้า
     const editGoods = async () => {
         if (!title.trim() || isNaN(cost) || cost === "" || parseFloat(cost) < 0) {
             alert("กรุณากรอกค่า Title และ Cost ห้ามน้อยกว่า 0");
@@ -100,7 +139,6 @@ const HomeScreen = () => {
         setImg("");
         setStatus("");
 
-
         try {
             await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedGoods))
         } catch (error) {
@@ -108,6 +146,7 @@ const HomeScreen = () => {
         }
     };
 
+    // การเปลี่ยนสถานะสินค้า สามารถเปลี่ยนสลับไปมาได้ : Not yet! & Bought 
     const switchStatus = async () => {
         const updatedGoods = goods.map((item) => {
             if (item.id.toString() === id) {
@@ -133,6 +172,7 @@ const HomeScreen = () => {
         }
     };
 
+    // การลบสินค้าทีละชิ้น มีการถามอีกครั้งเพื่อยืนยันการลบ เมื่อทำการกดลบ
     const deleteGoods = async () => {
         if (status === 'Not yet!') {
             dispatch({ type: 'Bought', total: cost });
@@ -147,6 +187,7 @@ const HomeScreen = () => {
         }
     }
 
+    // การลบสินค้าทุกชิ้น มีแจ้งเตือนก่อนลบ โดยเราสามารถเลือกยืนยันได้
     const clearAllStorage = async () => {
         setIsSettingVisible(false);
         try {
@@ -156,49 +197,10 @@ const HomeScreen = () => {
             //console.log('Clear');
         } catch (error) {
             console.log('Failed to clear storage: ', error);
-        }
-        
+        } 
     };
 
-
-    const loadGoods = async () => {
-        try {
-            const storedGoods = await AsyncStorage.getItem(STORAGE_KEY)
-            //console.log(storedGoods)
-            if (storedGoods) {
-                const parsedGoods = JSON.parse(storedGoods);
-                setGoods(parsedGoods);
-                loadTotal(parsedGoods);
-            } else {
-                setGoods([])
-            }
-        } catch (error) {
-            console.log('Failed to load: ', error)
-        }
-    }
-
-    const loadTotal = (goods) => {
-        let totalBeforeStart = 0;
-        goods.forEach((item) => {
-            if (item.status === 'Not yet!') {
-                totalBeforeStart += parseFloat(item.cost);
-            }
-        });
-        dispatch({ type: 'Not yet!', total: totalBeforeStart });
-    };
-
-    useEffect(() => {
-        loadGoods();
-    }, []);
-
-    useEffect(() => {
-        searchGoods(key);
-    }, [goods]);
-
-    // useEffect(() => {
-    //     console.log("Goods list:", goods);
-    // }, [goods]);
-
+    // เปิด modal เพื่อเพิ่มสินค้าหรือแก้ไขสินค้า
     const openModal = (text, item) => {
         setMode(text);
         if (text !== "add" && item) {
@@ -278,11 +280,8 @@ const HomeScreen = () => {
                                         onPress={() => editGoods()}
                                     />
                                 ]
-
                             }
-
                         </View>
-
                     </View>
                 </View>
             </Modal>
